@@ -2,6 +2,7 @@
 - [Cors local dev](feedback_cors_local_dev.md) — Server .env has NODE_ENV=production which excludes localhost:5173 from the CORS allowlist; fix with CORS_ORIGIN
 - [Design aesthetic](feedback_design_aesthetic.md) — User-validated design choices for posts/avatars/typography. Lean magazine-y, not generic social-media app, but borrow proven UX from Twitter/FB where it serves the user.
 - [Fediverse compat](feedback_fediverse_compat.md) — How to weigh Kowloon-specific features vs. fediverse interop
+- [No destructive sync flags](feedback_no_destructive_sync_flags.md) — Never use rsync --delete, git clean -fd, cp -rf, find -delete, or similar without explicit confirmation in-turn. Default to additive operations.
 - [Overflow hidden dropdowns](feedback_overflow_hidden_dropdowns.md) — Any absolute-positioned dropdown inside PostComposer must use createPortal — the modal container has overflow-hidden which clips child popups
 - [Pm2 env](feedback_pm2_env.md) — PM2 does not pick up .env changes on plain restart; must use --update-env flag
 - [Alpha status](project_alpha_status.md) — Current state of Kowloon as of 2026-04-19 and what remains before alpha
