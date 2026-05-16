@@ -1,0 +1,30 @@
+- [Actor canonical](feedback_actor_canonical.md) — For Kowloon, `actor` is the canonical author field everywhere; don't introduce `attributedTo` aliases on the server to bridge frontend gaps — fix the frontend.
+- [Cors local dev](feedback_cors_local_dev.md) — Server .env has NODE_ENV=production which excludes localhost:5173 from the CORS allowlist; fix with CORS_ORIGIN
+- [Design aesthetic](feedback_design_aesthetic.md) — User-validated design choices for posts/avatars/typography. Lean magazine-y, not generic social-media app, but borrow proven UX from Twitter/FB where it serves the user.
+- [Fediverse compat](feedback_fediverse_compat.md) — How to weigh Kowloon-specific features vs. fediverse interop
+- [Overflow hidden dropdowns](feedback_overflow_hidden_dropdowns.md) — Any absolute-positioned dropdown inside PostComposer must use createPortal — the modal container has overflow-hidden which clips child popups
+- [Pm2 env](feedback_pm2_env.md) — PM2 does not pick up .env changes on plain restart; must use --update-env flag
+- [Alpha status](project_alpha_status.md) — Current state of Kowloon as of 2026-04-19 and what remains before alpha
+- [Background worker todo](project_background_worker_todo.md) — Need a dedicated worker process for deferred jobs (actor cache refresh, federation retries, image work) before scaling
+- [Bookmarks personal only](project_bookmarks_personal_only.md) — Bookmarks do not fan out to feeds and do not federate. To broadcast a URL, users post a Link instead.
+- [Bugs 2026 05 05](project_bugs_2026_05_05.md) — Privacy/fan-out bug, reply count stale FeedItems, user search, circle UX, UI polish
+- [Circle ux](project_circle_ux.md) — Two-step circle creation modal, user lookup endpoint, homepage feed design
+- [Codebase gotchas](project_codebase_gotchas.md) — Non-obvious shape-of-the-code traps in Kowloon server — current invariants that are easy to break or miss
+- [Default placeholder icons](project_default_placeholder_icons.md) — Resolved 2026-05-06 — server/public/images/{user,circle,group}.svg ship in the repo and are referenced by schema defaults.
+- [Federation test plan](project_federation_test_plan.md) — 3-server federation test suite for Kowloon; achieved 100% pass rate (59/59 tests) on 2026-04-27
+- [Geolocation](project_geolocation.md) — Post geotagging with GPS button and Nominatim forward geocoding autocomplete
+- [Install frontend](project_install_frontend.md) — Decisions made about the installer, CI/CD pipeline, and how the frontend is served
+- [Kowloon seed actor gap](project_kowloon_seed_actor_gap.md) — server/scripts/seed.js writes Posts/Replies/Pages directly via Mongoose, bypassing the outbox pipeline — so the `actor` embed and FeedItems are never populated. Posts won't render authors or appear in /posts until backfilled.
+- [Local dev layout](project_local_dev_layout.md) — Local dev stack on this machine — host PM2 runs Kowloon server/worker/frontend; MongoDB and MinIO come from the dockerized federation compose stack.
+- [Multi federation remaining todo](project_multi_federation_remaining_todo.md) — TODO — wire the multi-federation helper into the Add (join_approved) handler so cross-server group approvals notify users on third servers. Same pattern as React/Reply, just deferred.
+- [Outbox API format](project_outbox_api_format.md) — Activity payload shapes accepted by POST /outbox — quick reference for the canonical types
+- [Reply federation lag possibly todo](project_reply_federation_lag_possibly_todo.md) — POSSIBLY TODO — in the on-demand reply model (added 2026-05-14), the author of a cross-server reply may briefly miss seeing their own reply because the read proxies to the parent's host before federation has landed. Wait for real-world testing to see if it shows up.
+- [Reply tombstone refanout todo](project_reply_tombstone_refanout_todo.md) — Historical note. Resolved by switching to the on-demand reply model (parent host is the single source of truth for a post's replies). Third-party servers no longer keep Reply state, so there is nothing to fan out tombstones to.
+- [Security hardening](project_security_hardening.md) — Security work completed in the session of 2026-04-29 covering XSS, CORS, rate limiting, file validation, SSRF, and storage
+- [Seo](project_seo.md) — How Kowloon handles SEO, OG tags, and social media previews
+- [Sidebar hero margin todo](project_sidebar_hero_margin_todo.md) — ServerInfo's hero image on the desktop sidebar has a visible left gap to the page edge that two attempts haven't resolved. Suspected Vite/Tailwind v4 stale cache.
+- [Signing](project_signing.md) — How Post, Circle, and Bookmark content is signed; utility location and UserSchema methods
+- [Undo react todo](project_undo_react_todo.md) — ActivityParser/handlers/Undo/index.js has a placeholder for Undo{React}; needs to actually remove the React record and recompute reactPreview/reactSummary
+- [User visibility model](project_user_visibility_model.md) — User.to is capped to @public or @<own-domain>; profile is always discoverable; personal-info fields are gated per viewer.
+- [Background](user_background.md) — Josh is a professional writer and journalist who prioritizes readability and editorial elegance in UI/UX
+- [Joplin integration](reference_joplin_integration.md) — Joplin Web Clipper API on localhost — token, folder ID, and key note IDs for Kowloon design docs
