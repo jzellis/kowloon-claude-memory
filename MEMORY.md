@@ -17,6 +17,7 @@
 - [Install frontend](project_install_frontend.md) — Decisions made about the installer, CI/CD pipeline, and how the frontend is served
 - [Kowloon seed actor gap](project_kowloon_seed_actor_gap.md) — server/scripts/seed.js writes Posts/Replies/Pages directly via Mongoose, bypassing the outbox pipeline — so the `actor` embed and FeedItems are never populated. Posts won't render authors or appear in /posts until backfilled.
 - [Local dev layout](project_local_dev_layout.md) — Local dev stack on this machine — host PM2 runs Kowloon server/worker/frontend; MongoDB and MinIO come from the dockerized federation compose stack.
+- [Mobile strategy](project_mobile_strategy.md) — Mobile is React Native, not a PWA. Don't suggest service workers / offline queues / manifest.json for the web frontend.
 - [Multi federation remaining todo](project_multi_federation_remaining_todo.md) — TODO — wire the multi-federation helper into the Add (join_approved) handler so cross-server group approvals notify users on third servers. Same pattern as React/Reply, just deferred.
 - [Outbox API format](project_outbox_api_format.md) — Activity payload shapes accepted by POST /outbox — quick reference for the canonical types
 - [Reply federation lag possibly todo](project_reply_federation_lag_possibly_todo.md) — POSSIBLY TODO — in the on-demand reply model (added 2026-05-14), the author of a cross-server reply may briefly miss seeing their own reply because the read proxies to the parent's host before federation has landed. Wait for real-world testing to see if it shows up.
