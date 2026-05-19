@@ -29,8 +29,11 @@ Running `seed-extra.js` after `seed.js` doesn't backfill the seed.js posts — i
 
 ### Other seeding gotchas
 
+- **Bake asset URLs with a publicly-reachable host, not `localhost`.** seed-extra.js (via `TEST_BASE_URL`) and seed-sample-icons.js (via `ICON_BASE_URL` / the server's `domain` setting) embed asset URLs into Post.body, Post.image, User.profile.icon, Circle.icon, Group.icon, and the FeedItems cache. If you bake `http://localhost:3000/...`, the URLs work for a browser on the same box but break the moment jzellis SSHes in and views from his phone or another machine. On Jarvis, run with `TEST_BASE_URL=http://100.83.23.39:3000` and `ICON_BASE_URL=http://100.83.23.39:3000` (the Tailscale IP). If you forgot, `scripts/rewrite-sample-icon-urls.js` does an in-place find/replace across all collections: `FROM=http://localhost:3000 TO=http://100.83.23.39:3000 MONGO_URI=... node scripts/rewrite-sample-icon-urls.js` (supports `DRY_RUN=1`).
+- **Rules acknowledgement gate.** Once any server rules exist (`settings.rules` non-empty), seed-extra.js now fetches them at startup and auto-acknowledges all of them on each /register call. Don't strip that logic out — without it every register returns 400.
 - **`seed-test.js` step 4 fails** — sets `User.to` to a circle ID, but the Update handler in `ActivityParser/handlers/Update/index.js` only allows `@public` or `@<own-domain>` for User profiles. Earlier steps succeed; everything after the Carol-profile step doesn't run.
 - **DOMAIN env var** — seed-test.js defaults to `kwln.org`. On localhost dev, pass `DOMAIN=localhost`.
+- **Admin user auto-recreate.** `server/.env` now has `ADMIN_USERNAME=jzellis` alongside `ADMIN_PASSWORD=changeme`. init.js recreates the admin (and adds to adminCircle + modCircle) on every server restart, so after a wipe just `pm2 restart kowloon --update-env`. .env is gitignored.
 
 **Why:** seed.js predates the outbox/FeedItems separation and was never refactored. seed-extra.js was written after, which is why it does the right thing. CLAUDE.md flags the general rule ("Direct `Model.create()` skips actor embed, feed fan-out, notifications, federation").
 
