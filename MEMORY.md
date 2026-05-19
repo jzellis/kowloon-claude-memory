@@ -16,7 +16,7 @@
 - [Federation test plan](project_federation_test_plan.md) — 3-server federation test suite for Kowloon; achieved 100% pass rate (59/59 tests) on 2026-04-27
 - [Geolocation](project_geolocation.md) — Post geotagging with GPS button and Nominatim forward geocoding autocomplete
 - [Install frontend](project_install_frontend.md) — Decisions made about the installer, CI/CD pipeline, and how the frontend is served
-- [Kowloon seed actor gap](project_kowloon_seed_actor_gap.md) — server/scripts/seed.js writes Posts/Replies/Pages directly via Mongoose, bypassing the outbox pipeline — so the `actor` embed and FeedItems are never populated. Posts won't render authors or appear in /posts until backfilled.
+- [Kowloon seed actor gap](project_kowloon_seed_actor_gap.md) — Rich-seed pipeline (seed.js + seed-extra.js + seed-sample-icons.js) and the actor/FeedItems gap that only affects seed.js. sample-media folder required at repo root.
 - [Local dev layout](project_local_dev_layout.md) — Local dev stack on this machine — host PM2 runs Kowloon server/worker/frontend; MongoDB and MinIO come from the dockerized federation compose stack.
 - [Mobile strategy](project_mobile_strategy.md) — Mobile is React Native, not a PWA. Don't suggest service workers / offline queues / manifest.json for the web frontend.
 - [Multi federation remaining todo](project_multi_federation_remaining_todo.md) — Add (join_approved) wired 2026-05-18. Only the rare Join (join_request) cross-admin-server case remains.
