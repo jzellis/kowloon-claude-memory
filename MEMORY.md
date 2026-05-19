@@ -5,6 +5,7 @@
 - [No destructive sync flags](feedback_no_destructive_sync_flags.md) — Never use rsync --delete, git clean -fd, cp -rf, find -delete, or similar without explicit confirmation in-turn. Default to additive operations.
 - [Overflow hidden dropdowns](feedback_overflow_hidden_dropdowns.md) — Any absolute-positioned dropdown inside PostComposer must use createPortal — the modal container has overflow-hidden which clips child popups
 - [Pm2 env](feedback_pm2_env.md) — PM2 does not pick up .env changes on plain restart; must use --update-env flag
+- [Router link outside context](feedback_router_link_outside_context.md) — Never use react-router-dom <Link>/useNavigate in components mounted as siblings of <RouterProvider> (toasts, root portals). Navigate via the imported router instance instead.
 - [Sanitize wrapper](feedback_sanitize_wrapper.md) — Always import sanitizeHtml from #methods/utils/sanitize.js, never from 'sanitize-html' directly. Wrapper patches CVE-2026-44990 (xmp XSS); no upstream fix yet.
 - [Alpha status](project_alpha_status.md) — Current state of Kowloon as of 2026-04-19 and what remains before alpha
 - [Background worker todo](project_background_worker_todo.md) — Need a dedicated worker process for deferred jobs (actor cache refresh, federation retries, image work) before scaling
