@@ -20,6 +20,7 @@
 - [Kowloon seed actor gap](project_kowloon_seed_actor_gap.md) — Rich-seed pipeline (seed.js + seed-extra.js + seed-sample-icons.js) and the actor/FeedItems gap that only affects seed.js. sample-media folder required at repo root.
 - [Local dev layout](project_local_dev_layout.md) — Local dev stack on this machine — host PM2 runs Kowloon server/worker/frontend; MongoDB and MinIO come from the dockerized federation compose stack.
 - [Mobile strategy](project_mobile_strategy.md) — Mobile is React Native, not a PWA. Don't suggest service workers / offline queues / manifest.json for the web frontend.
+- [Mobile app scaffold](project_mobile_app_scaffold.md) — Mobile app exists at ~/Projects/kowloon/mobile (repo jzellis/kowloon-mobile). Expo SDK 55 + Expo Router + plain JS, @kowloon/client linked. Multi-account from day one.
 - [Multi federation remaining todo](project_multi_federation_remaining_todo.md) — Add (join_approved) wired 2026-05-18. Only the rare Join (join_request) cross-admin-server case remains.
 - [Outbox API format](project_outbox_api_format.md) — Activity payload shapes accepted by POST /outbox — quick reference for the canonical types
 - [Reply federation lag possibly todo](project_reply_federation_lag_possibly_todo.md) — POSSIBLY TODO — in the on-demand reply model (added 2026-05-14), the author of a cross-server reply may briefly miss seeing their own reply because the read proxies to the parent's host before federation has landed. Wait for real-world testing to see if it shows up.
