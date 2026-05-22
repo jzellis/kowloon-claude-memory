@@ -1,13 +1,13 @@
 ---
 name: project-mobile-app-scaffold
-description: "Kowloon mobile app at /home/jzellis/Projects/kowloon/mobile (repo github.com:jzellis/kowloon-mobile). Expo SDK 55 + Expo Router + NativeWind v4, plain JS. Multi-account Redux + namespaced AsyncStorage. Full auth trilogy (login + register + QR invite scan) working end-to-end as of 2026-05-21."
+description: "Kowloon mobile app at /home/jzellis/Projects/kowloon/mobile (repo github.com:jzellis/kowloon-mobile). Expo SDK 55 + Expo Router + NativeWind v4, plain JS. Multi-account. As of 2026-05-22: auth, typography system, home feed, composer, rich rendering all working end-to-end."
 metadata: 
   node_type: memory
   type: project
   originSessionId: 6e96ac03-ec71-4963-9caa-8cea57c680b1
 ---
 
-The mobile codebase is a fourth Kowloon repo sibling to server/frontend/client. Scaffolded 2026-05-20. Login flow shipped 2026-05-21 (commit `bf02db4`).
+The mobile codebase is a fourth Kowloon repo sibling to server/frontend/client. Scaffolded 2026-05-20.
 
 - **Repo**: `github.com:jzellis/kowloon-mobile` (public)
 - **Path on jarvis**: `/home/jzellis/Projects/kowloon/mobile`
@@ -16,61 +16,50 @@ The mobile codebase is a fourth Kowloon repo sibling to server/frontend/client. 
 
 ### Architectural commitments — settled and durable
 
-- **Multi-account from day one.** State model: `accounts.list[] + accounts.activeId`. Per-account auth tokens live in a namespaced AsyncStorage adapter (key prefix `kowloon:<accountId>:`) — *not* in Redux. Each account gets its own `KowloonClient` instance, cached by account ID in `src/lib/client.js`. v1 UX exposes a single account; switching is a 1-action Redux dispatch when the UI lands.
+- **Multi-account from day one.** State model: `accounts.list[] + accounts.activeId`. Per-account auth tokens live in a namespaced AsyncStorage adapter (key prefix `kowloon:<accountId>:`) — *not* in Redux. Each account gets its own `KowloonClient` instance, cached by account ID in `src/lib/client.js`. v1 UX exposes a single account; the account list + switcher chrome isn't built, but the data model is multi-tenant.
 - **Push notifications**: per-account, not per-device. App registers its Expo push token with each Kowloon server it has an account on. Server-side `PushSubscription` collection — not yet built.
 - **Web is NOT a target.** Expo's `react-native-web` exists but the web frontend at `../frontend` is the production web.
 - **Admin is split**: full admin stays web-only; mobile gets a small "moderation tray" for time-sensitive actions. Not yet built.
+- **Content is Markdown.** The server stores Markdown source and renders HTML itself (Create handler strips raw HTML, enforces `text/markdown`). The composer must send Markdown; feed objects come back with server-rendered HTML in `body`/`summary` (no `source` field), so the app *renders* HTML but *sends* Markdown.
 
-### Status as of 2026-05-21
+### Status as of 2026-05-22 — all tested on Android via Expo Go over Tailscale
 
-**Working end to end (tested on Android via Expo Go over Tailscale):**
-- Welcome screen, three CTAs (Log in / Register / Scan invite)
-- **Login**: parses `@user@domain`, infers baseUrl, optional server URL override for local dev, POST `/auth/login` via `@kowloon/client`, token written to namespaced AsyncStorage, account stored in Redux, redirect to feed
-- **Register**: two-stage — enter server domain, fetch `GET /` for server info + rules, then form with username/email/password/confirm/(optional)invite-code + one checkbox per rule. Submit disabled until every rule ticked. Payload includes `acknowledgedRules: [ruleIds]`. Handles both `{ token, user }` (auto-login) and `{ requiresVerification: true }` (parks on `/verify-email` holding screen) response paths.
-- **QR scan**: `expo-camera` `CameraView` + `onBarcodeScanned` + permission gating. `parseInviteUrl` in `src/lib/inviteUrl.js` handles two formats: `kowloon://register?server=...&inviteCode=...&serverUrl=...` and `https://<server>/invite/<code>`. Recognized QR latches and routes to `/register` with prefill; unrecognized ones surface a transient error and keep scanning.
-- Placeholder feed showing active account + Sign out (which tears down client cache + namespaced storage + Redux entry)
-- Account hydration from AsyncStorage on app boot; survives restart
+**Auth** (commits up to `16a7001`): Welcome screen; Login (`@user@domain` → infer baseUrl, server-URL override for local dev); Register (two-stage — server discovery + rules acknowledgement, handles email-verification path); QR invite scan (`expo-camera`, `parseInviteUrl`). Account hydration from AsyncStorage on boot.
 
-**Not yet built:**
-- Real feed (currently just shows account info + sign-out)
-- Account picker / switcher chrome (architecture supports it; no UI yet)
-- Post composer
-- Notifications
-- `verify-email` is a holding screen only — the verification link itself is handled by the web frontend, after which the user comes back and logs in.
+**Typography system** (`793be6a`, server `aaf6198c`): Kindle-style curated reading controls. Five bundled fonts via `expo-font` (Inter default, Atkinson Hyperlegible, Lora, Merriweather, OpenDyslexic). `src/lib/typography.js` is the single source of truth. Four stepped prefs (fontFamily, fontSize, lineSpacing, columnWidth) stored at `user.prefs.typography` — a real subschema added to `server/schema/User.js`, synced via `@kowloon/client` `updateProfile`, debounced. `TypographyProvider` + `useTypography()`. Settings screen at `app/settings/typography.js`. Live on the post-detail reading surface.
+
+**Home feed + composer + rich rendering** (`0512712`): 
+- `useFeed` — paginated `GET /posts`, pull-to-refresh, infinite scroll, refresh-on-focus.
+- `PostCard` — editorial type-aware cards; renders `summary || body` as rich HTML (Notes have no `summary`, only `body`).
+- `UserMenu` — avatar in the masthead opens it (Profile/Circles/Groups/Settings/Log out). Masthead shows the server's display name (`account.serverName`, fetched from `GET /`).
+- Composer (`app/compose.js`) — Note + Article via one **10tap** (TipTap-in-WebView) editor. On submit: `editor.getJSON()` → `pmToMarkdown()` → `createPost()`. 10tap can't emit Markdown directly and RN has no DOM (so `turndown` is out) — hence the ProseMirror-JSON walker.
+- `HtmlContent` — wraps `react-native-render-html` with editorial tag styles; used in cards and the detail view (detail wires in typography prefs).
+- Post detail (`app/post/[id].js`) — rich body, typography applied. Reactions/replies not yet built.
+
+**Not yet built:** account switcher chrome; Profile/Circles/Groups screens (stubs only); notifications; reactions/replies; Media/Link/Event composer types; the moderation tray.
 
 ### Gotchas — hard-earned
 
-- **`.npmrc` pins `legacy-peer-deps=true`**. Without it `npm install` errors on React 19 strict peer resolution (expo-router pulls in vaul + radix transitively).
-- **legacy-peer-deps breaks hoisting**, so several transitive deps must be installed explicitly at the top level: `babel-preset-expo`, `react-native-worklets` (split out of reanimated 4.x), and occasionally others. Symptom: Metro bundling fails with "Cannot find module X" pointing at a deeply nested path. Fix: `npx expo install <pkg>` to add it to the top-level `package.json`.
-- **NEVER name a sibling folder `src/app/`**. Expo Router's auto-detector treats any `app/` directory it finds as a potential routes root and picks one over the other unpredictably ("Using src/app as the root directory for Expo Router" was the symptom). Redux store lives at `src/state/` instead.
-- **`metro.config.js` needs `unstable_enableSymlinks: true` and `unstable_enablePackageExports: true`** for the `file:../client` dep to resolve. Also `watchFolders` must include `../client` so hot reload picks up client lib changes. Do NOT set `disableHierarchicalLookup: true` — it breaks Metro's ability to find nested transitive deps like `@expo/metro-runtime`.
-- **`@kowloon/client` hardcodes its AsyncStorage key as `kowloon_token`.** For multi-account, the wrapper in `src/lib/storage.js` (`makeAccountStorage(id)`) namespaces every key with `kowloon:<accountId>:`. Pass this adapter explicitly to every `new KowloonClient({ storage })` — never let the client fall back to its own default storage.
-- **Dev-server reachability from a phone**: phone can't resolve "localhost"; it must hit jarvis's Tailscale IP `100.83.23.39:3000`. The "Use a different server URL" toggle on the login screen handles this. (Production flow needs no override — `@user@kwln.org` auto-derives `https://kwln.org`.)
-- **Hermes-to-Metro `console.log` bridge is unreliable** — log lines sometimes don't appear in the Metro tmux pane even when the JS is definitely executing. For debugging hangs, render trace lines in the UI itself (a `useState`-backed list with a `log()` setter) — much more reliable than `console.log`.
+- **`.npmrc` pins `legacy-peer-deps=true`**. Without it `npm install` errors on React 19 strict peer resolution.
+- **legacy-peer-deps breaks hoisting** — some transitive deps must be installed explicitly at top level (`babel-preset-expo`, `react-native-worklets`). Symptom: Metro "Cannot find module X" at a deeply nested path. Fix: `npx expo install <pkg>`.
+- **NEVER name a sibling folder `src/app/`** — Expo Router's auto-detector grabs any `app/` dir as a routes root. Redux store lives at `src/state/`.
+- **`metro.config.js` needs `unstable_enableSymlinks` + `unstable_enablePackageExports`** for the `file:../client` dep; `watchFolders` includes `../client`. Do NOT set `disableHierarchicalLookup` — breaks finding nested deps like `@expo/metro-runtime`.
+- **`@kowloon/client` hardcodes AsyncStorage key `kowloon_token`** — multi-account uses `makeAccountStorage(id)` in `src/lib/storage.js` to namespace it. Always pass that adapter to `new KowloonClient({ storage })`.
+- **Dev-server reachability from a phone**: phone can't resolve "localhost" — must use jarvis's Tailscale IP `100.83.23.39:3000`. Login's "Use a different server URL" toggle handles it. The dev server's `DOMAIN` is `localhost`, display name "The Walled City".
+- **Hermes-to-Metro `console.log` is unreliable** — logs sometimes don't reach the Metro pane. For debugging, render trace lines in the UI (`useState` list).
+- **Metro restart**: after adding a dependency or changing babel/metro/tailwind config, restart with `npx expo start -c`. A bare `r` reload only suffices for JS edits. Restarting Metro drops the Expo Go connection — the phone must reconnect (re-scan / reopen) before bundling resumes.
+- **`react-native-render-html` 6.3.x** — works in Expo Go (pure JS); may log harmless deprecation warnings. No bold-italic font bundled, so combined bold+italic degrades to one or the other.
 
-### Theme tokens
+### Theme
 
-`tailwind.config.js` mirrors the web frontend's editorial kowloon theme as hex approximations of the source OKLCH values:
-- `base-100` `#FAF4E8` (warm cream paper)
-- `primary` `#5588B1` (desaturated steel blue)
-- `secondary` `#393B7A` (medium navy)
-- `accent` / `error` `#C0394A` (vermillion)
-- `success` `#2F9956`
-- Post type accents `post-{note,article,media,link,event}`
-- `borderRadius` zeroed out everywhere — no pill shapes
-- Custom font families (`reading`, `ui`, `mono`) resolve to system serif/sans for now; real font assets via `expo-font` is future work
+`tailwind.config.js` mirrors the web frontend's editorial kowloon theme: `base-100` `#FAF4E8` (cream), `primary` `#5588B1` (steel blue), `secondary` `#393B7A` (navy), `accent`/`error` `#C0394A` (vermillion), `post-{note,article,media,link,event}` accents, `borderRadius` zeroed (no pill shapes). The static `font-reading`/`font-ui` Tailwind tokens point at bundled fonts (Lora display serif / Inter sans); the user-selectable reading font is applied via inline styles, not Tailwind classes.
 
-### Files worth knowing
+### Key files
 
-- `app/_layout.js` — Provider + Stack + status bar + hydration boot
-- `app/index.js` — splash → redirect (welcome vs feed) based on accounts state
-- `app/welcome.js`, `app/login.js`, `app/register.js`, `app/scan.js`, `app/verify-email.js`, `app/feed.js` — wired screens
-- `src/state/store.js`, `src/state/accountsSlice.js` — Redux
-- `src/lib/identity.js` — `parseKowloonId`, `inferBaseUrl`, `domainFromUrl`
-- `src/lib/inviteUrl.js` — `parseInviteUrl` (QR + deep-link → server/inviteCode/serverUrl)
-- `src/lib/storage.js` — `makeAccountStorage`, `purgeAccountStorage`, root-level `ROOT_KEYS`
-- `src/lib/client.js` — `ensureClient`, `forgetClient`, `getCachedClient` (in-memory map keyed by account ID)
-- `src/lib/useActiveClient.js` — `useActiveClient` hook returning the active account's `KowloonClient`
-- `src/components/ui/{Button,Field,Heading}.jsx` — primitives in editorial style
-- `babel.config.js`, `metro.config.js`, `tailwind.config.js`, `global.css` — NativeWind config
+- `app/_layout.js` — Provider + fonts (useFonts behind splash) + TypographyProvider + Stack
+- `app/index.js` — splash → redirect (welcome vs feed)
+- Screens: `welcome` `login` `register` `scan` `verify-email` `feed` `compose` `post/[id]` `profile` `circles` `groups` `settings/index` `settings/typography`
+- `src/state/` — Redux store + `accountsSlice`
+- `src/lib/` — `identity`, `inviteUrl`, `storage`, `client`, `useActiveClient`, `useFeed`, `typography`, `TypographyContext`, `pmToMarkdown`, `timeAgo`
+- `src/components/` — `HtmlContent`, `UserMenu`, `posts/{PostCard,Avatar}`, `ui/{Button,Field,Heading,Checkbox,SegmentedControl}`
 - `mobile/CLAUDE.md` — project-level conventions doc
