@@ -32,7 +32,7 @@ The mobile codebase is a fourth Kowloon repo sibling to server/frontend/client. 
 - `useFeed` — paginated `GET /posts`, pull-to-refresh, infinite scroll, refresh-on-focus.
 - `PostCard` — editorial type-aware cards; renders `summary || body` as rich HTML (Notes have no `summary`, only `body`).
 - `UserMenu` — avatar in the masthead opens it (Profile/Circles/Groups/Settings/Log out). Masthead shows the server's display name (`account.serverName`, fetched from `GET /`).
-- Composer (`app/compose.js`) — Note + Article via one **10tap** (TipTap-in-WebView) editor. On submit: `editor.getJSON()` → `pmToMarkdown()` → `createPost()`. 10tap can't emit Markdown directly and RN has no DOM (so `turndown` is out) — hence the ProseMirror-JSON walker.
+- Composer (`app/compose.js`, reworked `1e02eba`) — `PostTypeSelector` (all 5 types, hexagon icons), Note + Article composable via one **10tap** (TipTap-in-WebView) editor, `AudienceSelector` (Public/Server + circles, returns the real `to`). On submit: `editor.getJSON()` → `pmToMarkdown()` → `createPost()`. 10tap can't emit Markdown directly and RN has no DOM (so `turndown` is out) — hence the ProseMirror-JSON walker.
 - `HtmlContent` — wraps `react-native-render-html` with editorial tag styles; used in cards and the detail view (detail wires in typography prefs).
 - Post detail (`app/post/[id].js`) — rich body, typography applied. Reactions/replies not yet built.
 
@@ -49,6 +49,9 @@ The mobile codebase is a fourth Kowloon repo sibling to server/frontend/client. 
 - **Hermes-to-Metro `console.log` is unreliable** — logs sometimes don't reach the Metro pane. For debugging, render trace lines in the UI (`useState` list).
 - **Metro restart**: after adding a dependency or changing babel/metro/tailwind config, restart with `npx expo start -c`. A bare `r` reload only suffices for JS edits. Restarting Metro drops the Expo Go connection — the phone must reconnect (re-scan / reopen) before bundling resumes.
 - **`react-native-render-html` 6.3.x** — works in Expo Go (pure JS); may log harmless deprecation warnings. No bold-italic font bundled, so combined bold+italic degrades to one or the other.
+- **10tap toolbar — place it as a STATIC bar on top of the editor, not a keyboard accessory.** The composer keyboard layout cost a long debugging session. Lessons: (1) 10tap's `Toolbar` self-hides via `hideToolbar = !isKeyboardUp || !editorState.isFocused`; the `isFocused` flag goes stale after the hidden-input→editor focus handoff, so pass `hidden={false}` to force it visible. (2) Its `FlatList` collapses to zero height unless wrapped in a fixed-height (44px) View. (3) Pinning it above the keyboard is fragile — putting it on top of the editor box (like the web composer) sidesteps all keyboard-position issues.
+- **Expo Go doesn't reliably resize the Android window for the keyboard.** `KeyboardAvoidingView behavior="height"` double-counts / misbehaves. The composer instead pads its content area by a measured inset — `useKeyboardInset` computes `windowHeight - keyboardEvent.endCoordinates.screenY`. Exact keyboard insets on Android are genuinely hard; `react-native-keyboard-controller` is the real fix but needs a custom dev build (not Expo Go).
+- **Post-type icons are rasterized PNGs** (`assets/post-icons/`), tinted per type via `Image` `tintColor` — not SVG. `react-native-svg-transformer` conflicts with NativeWind's Metro transformer, so the web SVGs were pre-rasterized with `sharp` instead.
 
 ### Theme
 
@@ -60,6 +63,6 @@ The mobile codebase is a fourth Kowloon repo sibling to server/frontend/client. 
 - `app/index.js` — splash → redirect (welcome vs feed)
 - Screens: `welcome` `login` `register` `scan` `verify-email` `feed` `compose` `post/[id]` `profile` `circles` `groups` `settings/index` `settings/typography`
 - `src/state/` — Redux store + `accountsSlice`
-- `src/lib/` — `identity`, `inviteUrl`, `storage`, `client`, `useActiveClient`, `useFeed`, `typography`, `TypographyContext`, `pmToMarkdown`, `timeAgo`
-- `src/components/` — `HtmlContent`, `UserMenu`, `posts/{PostCard,Avatar}`, `ui/{Button,Field,Heading,Checkbox,SegmentedControl}`
+- `src/lib/` — `identity`, `inviteUrl`, `storage`, `client`, `useActiveClient`, `useFeed`, `useKeyboardInset`, `typography`, `TypographyContext`, `pmToMarkdown`, `postTypes`, `timeAgo`
+- `src/components/` — `HtmlContent`, `UserMenu`, `posts/{PostCard,Avatar,PostTypeIcon,PostTypeSelector,AudienceSelector}`, `ui/{Button,Field,Heading,Checkbox,SegmentedControl}`
 - `mobile/CLAUDE.md` — project-level conventions doc
