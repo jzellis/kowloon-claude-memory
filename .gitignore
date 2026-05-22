@@ -2,3 +2,6 @@
 *.swp
 *.swo
 *~
+
+# Per-device secrets — never committed. Each machine keeps its own copy.
+*.local.md
