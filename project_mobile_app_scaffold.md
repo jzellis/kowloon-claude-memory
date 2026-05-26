@@ -39,6 +39,10 @@ The mobile codebase is a fourth Kowloon repo sibling to server/frontend/client. 
 
 **Not yet built:** account switcher chrome; Profile/Circles/Groups screens (stubs only); notifications; reactions/replies; Media/Link/Event composer types; the moderation tray.
 
+### Known bugs
+
+- **Feed-filter defaults don't reliably restore after sign-out → sign-in.** Auto-sync to `user.prefs.{defaultFeedView, defaultPostView}` *writes* correctly (verified server-side); the bug is the restore. `usePersistedFilter` has a race: when `client.auth.getUser()` returns the in-memory user before `AsyncStorage.getItem` resolves, the `awaitingFallback` ref isn't set yet when the late-fallback effect fires (`fallbackSig` already changed), so the fallback application is missed. Fix: convert `awaitingFallback` from a ref to state so the apply effect re-fires once hydrate completes and flips it true. Low priority — local AsyncStorage still persists within a session, this only affects fresh-device / post-signout cases.
+
 ### Gotchas — hard-earned
 
 - **`.npmrc` pins `legacy-peer-deps=true`**. Without it `npm install` errors on React 19 strict peer resolution.
