@@ -15,6 +15,7 @@
 - [Codebase gotchas](project_codebase_gotchas.md) — Non-obvious shape-of-the-code traps in Kowloon server — current invariants that are easy to break or miss
 - [Default placeholder icons](project_default_placeholder_icons.md) — Resolved 2026-05-06 — server/public/images/{user,circle,group}.svg ship in the repo and are referenced by schema defaults.
 - [Federation test plan](project_federation_test_plan.md) — 3-server federation test suite for Kowloon; achieved 100% pass rate (59/59 tests) on 2026-04-27
+- [Event datetime logic](project_event_datetime_logic.md) — Smart auto-fill rules for Event start/end date+time parts in the composer (web + mobile)
 - [Geolocation](project_geolocation.md) — Post geotagging with GPS button and Nominatim forward geocoding autocomplete
 - [Install frontend](project_install_frontend.md) — Decisions made about the installer, CI/CD pipeline, and how the frontend is served
 - [Kowloon seed actor gap](project_kowloon_seed_actor_gap.md) — Rich-seed pipeline (seed.js + seed-extra.js + seed-sample-icons.js) and the actor/FeedItems gap that only affects seed.js. sample-media folder required at repo root.
