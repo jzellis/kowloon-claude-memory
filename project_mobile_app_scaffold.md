@@ -29,12 +29,13 @@ The mobile codebase is a fourth Kowloon repo sibling to server/frontend/client. 
 **Typography system** (`793be6a`, server `aaf6198c`): Kindle-style curated reading controls. Five bundled fonts via `expo-font` (Inter default, Atkinson Hyperlegible, Lora, Merriweather, OpenDyslexic). `src/lib/typography.js` is the single source of truth. Four stepped prefs (fontFamily, fontSize, lineSpacing, columnWidth) stored at `user.prefs.typography` — a real subschema added to `server/schema/User.js`, synced via `@kowloon/client` `updateProfile`, debounced. `TypographyProvider` + `useTypography()`. Settings screen at `app/settings/typography.js`. Live on the post-detail reading surface.
 
 **Home feed + composer + rich rendering** (`0512712`): 
-- `useFeed` — paginated `GET /posts`, pull-to-refresh, infinite scroll, refresh-on-focus.
+- `useFeed` — paginated, pull-to-refresh, infinite scroll, refresh-on-focus. Rewritten in `3a04ac4` to take `{ viewKey, activeTypes }`: routes to `getServerPosts({ to: 'public' | 'server' })` or `getCirclePosts({ circleId })` and handles each endpoint's pagination (page-based for server, `before` cursor for circles).
 - `PostCard` — editorial type-aware cards; renders `summary || body` as rich HTML (Notes have no `summary`, only `body`).
 - `UserMenu` — avatar in the masthead opens it (Profile/Circles/Groups/Settings/Log out). Masthead shows the server's display name (`account.serverName`, fetched from `GET /`).
 - Composer (`app/compose.js`, reworked `1e02eba`) — `PostTypeSelector` (all 5 types, hexagon icons), Note + Article composable via one **10tap** (TipTap-in-WebView) editor, `AudienceSelector` (Public/Server + circles, returns the real `to`). On submit: `editor.getJSON()` → `pmToMarkdown()` → `createPost()`. 10tap can't emit Markdown directly and RN has no DOM (so `turndown` is out) — hence the ProseMirror-JSON walker.
 - `HtmlContent` — wraps `react-native-render-html` with editorial tag styles; used in cards and the detail view (detail wires in typography prefs).
 - Post detail (`app/post/[id].js`) — rich body, typography applied. Reactions/replies not yet built.
+- **Timeline filtering** (`3a04ac4`, server `d3f9ea0f`, client `4114662`): `FeedHeader` below the masthead — tappable view title opens a bottom sheet (Public / Server / Your circles) and a horizontal post-type filter row. Selection persists per account via `usePersistedFilter` (AsyncStorage). Server-side, `GET /posts?to=public|server` restricts visibility; circle posts via `GET /circles/:id/posts`. Saving the current view as a default to `user.prefs` is deferred (future).
 
 **Not yet built:** account switcher chrome; Profile/Circles/Groups screens (stubs only); notifications; reactions/replies; Media/Link/Event composer types; the moderation tray.
 
@@ -63,6 +64,6 @@ The mobile codebase is a fourth Kowloon repo sibling to server/frontend/client. 
 - `app/index.js` — splash → redirect (welcome vs feed)
 - Screens: `welcome` `login` `register` `scan` `verify-email` `feed` `compose` `post/[id]` `profile` `circles` `groups` `settings/index` `settings/typography`
 - `src/state/` — Redux store + `accountsSlice`
-- `src/lib/` — `identity`, `inviteUrl`, `storage`, `client`, `useActiveClient`, `useFeed`, `useKeyboardInset`, `typography`, `TypographyContext`, `pmToMarkdown`, `postTypes`, `timeAgo`
-- `src/components/` — `HtmlContent`, `UserMenu`, `posts/{PostCard,Avatar,PostTypeIcon,PostTypeSelector,AudienceSelector}`, `ui/{Button,Field,Heading,Checkbox,SegmentedControl}`
+- `src/lib/` — `identity`, `inviteUrl`, `storage`, `client`, `useActiveClient`, `useFeed`, `useKeyboardInset`, `usePersistedFilter`, `typography`, `TypographyContext`, `pmToMarkdown`, `postTypes`, `timeAgo`
+- `src/components/` — `HtmlContent`, `UserMenu`, `posts/{PostCard,Avatar,PostTypeIcon,PostTypeSelector,AudienceSelector,FeedHeader,FeedViewSelector,TypeFilter}`, `ui/{Button,Field,Heading,Checkbox,SegmentedControl}`
 - `mobile/CLAUDE.md` — project-level conventions doc
