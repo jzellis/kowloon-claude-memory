@@ -39,9 +39,10 @@ The mobile codebase is a fourth Kowloon repo sibling to server/frontend/client. 
 
 **Not yet built:** account switcher chrome; Profile/Circles/Groups screens (stubs only); notifications; reactions/replies; Media/Link/Event composer types; the moderation tray.
 
-### Known bugs
+### Known bugs / outstanding work
 
 - **Feed-filter defaults don't reliably restore after sign-out → sign-in.** Auto-sync to `user.prefs.{defaultFeedView, defaultPostView}` *writes* correctly (verified server-side); the bug is the restore. `usePersistedFilter` has a race: when `client.auth.getUser()` returns the in-memory user before `AsyncStorage.getItem` resolves, the `awaitingFallback` ref isn't set yet when the late-fallback effect fires (`fallbackSig` already changed), so the fallback application is missed. Fix: convert `awaitingFallback` from a ref to state so the apply effect re-fires once hydrate completes and flips it true. Low priority — local AsyncStorage still persists within a session, this only affects fresh-device / post-signout cases.
+- **Link composer should auto-set `target` when `href` is a Kowloon post URL.** The client lib's `createPost` already accepts a `target` field ("ID of the post being shared"), and the web composer's state has it — but nothing auto-detects "this href is a Kowloon post" and extracts the post ID. Affects both web and mobile when the Link composer gets built. When `href` matches a Kowloon post URL pattern (`https://<domain>/posts/post:<id>@<domain>`), the composer should set `target: 'post:<id>@<domain>'` so it becomes a first-class quote/share (and feed cards can render an embedded preview instead of a generic link card).
 
 ### Gotchas — hard-earned
 
