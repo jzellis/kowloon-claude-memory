@@ -2,6 +2,7 @@
 - [Cors local dev](feedback_cors_local_dev.md) — Server .env has NODE_ENV=production which excludes localhost:5173 from the CORS allowlist; fix with CORS_ORIGIN
 - [Design aesthetic](feedback_design_aesthetic.md) — User-validated design choices for posts/avatars/typography. Lean magazine-y, not generic social-media app, but borrow proven UX from Twitter/FB where it serves the user.
 - [Fediverse compat](feedback_fediverse_compat.md) — How to weigh Kowloon-specific features vs. fediverse interop
+- [No follow notifications](feedback_no_follow_notifications.md) — Adding someone to a circle is private; the followed person is never notified. Foundational to Kowloon's ambiguous relationship model — don't build follower-count surfaces.
 - [No destructive sync flags](feedback_no_destructive_sync_flags.md) — Never use rsync --delete, git clean -fd, cp -rf, find -delete, or similar without explicit confirmation in-turn. Default to additive operations.
 - [Overflow hidden dropdowns](feedback_overflow_hidden_dropdowns.md) — Any absolute-positioned dropdown inside PostComposer must use createPortal — the modal container has overflow-hidden which clips child popups
 - [Pm2 env](feedback_pm2_env.md) — PM2 does not pick up .env changes on plain restart; must use --update-env flag
@@ -22,6 +23,8 @@
 - [Local dev layout](project_local_dev_layout.md) — Local dev stack on this machine — host PM2 runs Kowloon server/worker/frontend; MongoDB and MinIO come from the dockerized federation compose stack.
 - [Mobile strategy](project_mobile_strategy.md) — Mobile is React Native, not a PWA. Don't suggest service workers / offline queues / manifest.json for the web frontend.
 - [Mobile app scaffold](project_mobile_app_scaffold.md) — Kowloon mobile app (Expo SDK 55 + Expo Router, ~/Projects/kowloon/mobile). Auth, typography system, feed, composer, rich rendering all working as of 2026-05-22.
+- [Mobile share intake TODO](project_mobile_share_intake_todo.md) — Deferred: inbound share-into-Kowloon (Safari → Share → Kowloon → prefilled composer). Needs EAS dev client, on hold to keep the Expo Go workflow.
+- [Mobile groups moderation TODO](project_mobile_groups_moderation_todo.md) — Deferred: member kick / role promotion / block management need server activities + client wrappers; the right long-term home for join-request triage is a mobile notifications screen we haven't built yet.
 - [Multi federation remaining todo](project_multi_federation_remaining_todo.md) — Add (join_approved) wired 2026-05-18. Only the rare Join (join_request) cross-admin-server case remains.
 - [Outbox API format](project_outbox_api_format.md) — Activity payload shapes accepted by POST /outbox — quick reference for the canonical types
 - [Reply federation lag possibly todo](project_reply_federation_lag_possibly_todo.md) — POSSIBLY TODO — in the on-demand reply model (added 2026-05-14), the author of a cross-server reply may briefly miss seeing their own reply because the read proxies to the parent's host before federation has landed. Wait for real-world testing to see if it shows up.
@@ -33,4 +36,6 @@
 - [Undo react todo](project_undo_react_todo.md) — ActivityParser/handlers/Undo/index.js has a placeholder for Undo{React}; needs to actually remove the React record and recompute reactPreview/reactSummary
 - [User visibility model](project_user_visibility_model.md) — User.to is capped to @public or @<own-domain>; profile is always discoverable; personal-info fields are gated per viewer.
 - [Background](user_background.md) — Josh is a professional writer and journalist who prioritizes readability and editorial elegance in UI/UX
+- [Voice input](user_voice_input.md) — Josh sometimes uses iOS voice dictation from his iPad; messages may contain filler words and spoken-punctuation that should be ignored, not interpreted literally.
+- [Notification delivery options](project_notification_delivery_options.md) — Mobile uses foreground polling (60s) for now; WebSocket and push are deferred until we move off Expo Go. Don't re-litigate.
 - [Joplin integration](reference_joplin_integration.md) — Joplin Web Clipper API on localhost — token, folder ID, and key note IDs for Kowloon design docs

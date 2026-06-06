@@ -10,7 +10,7 @@ metadata:
 Joplin Web Clipper exposes a local HTTP API for reading project design notes.
 
 - **API**: `http://localhost:41184`
-- **Token**: per-device — read `secrets.local.md` in this same directory to get it. That file is gitignored (`*.local.md`); each machine running Joplin has its own Web Clipper token. The token is also mirrored in that machine's `server/.env` as `JOPLIN_TOKEN`. If `secrets.local.md` doesn't exist on this device, Joplin integration isn't set up here.
+- **Token**: per-device. Canonical location is `~/.config/joplin/token` (a single-line file with the token, no `=` or whitespace) — read directly with `cat ~/.config/joplin/token`. On some machines the token *also* shows up in `server/.env` as `JOPLIN_TOKEN` or in `secrets.local.md`, but the `~/.config/joplin/token` path is reliable when the others aren't populated. If `~/.config/joplin/token` doesn't exist on this device, Joplin integration isn't set up here.
 - **Kowloon folder ID**: `112f3b6f046a4664ad4733477953ceb4`
 
 ### Known note IDs
