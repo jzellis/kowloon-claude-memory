@@ -1,7 +1,10 @@
 ---
-name: Bug fixes 2026-05-05
-description: Privacy/fan-out bug, reply count stale FeedItems, user search, circle UX, UI polish
-type: project
+name: bug-fixes-2026-05-05
+description: "Privacy/fan-out bug, reply count stale FeedItems, user search, circle UX, UI polish"
+metadata: 
+  node_type: memory
+  type: project
+  originSessionId: 1d84a4ed-0961-4966-80a8-5133c21f41ef
 ---
 
 Bugs fixed and shipped (commits 1056b4c8 / e3c0483), 2026-05-05.
@@ -31,6 +34,8 @@ Added `GET /users/search?q=...` — case-insensitive regex on username and profi
 Used by circle member AddMemberRow. Bypasses profile `to` visibility (for circle lookup).
 Router guard: `STATIC_SEGMENTS = new Set(["lookup", "search"])` in `routes/users/index.js`
 prevents `router.param("id")` from treating "search" as a user ID.
+
+**Partial-match fix (2026-07-02):** The main `GET /search` endpoint was using MongoDB `$text` for User lookup, which is word-tokenised and couldn't match partial usernames (e.g. "jzell" wouldn't find "jzellis"). Fixed by breaking User out of the `$text` path and using a regex `$or: [{ username: re }, { "profile.name": re }]`. See [[search-architecture]].
 
 ### UI improvements
 - RichTextEditor: larger toolbar buttons

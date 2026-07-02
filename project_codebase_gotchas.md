@@ -64,3 +64,15 @@ TEST_BASE_URL=http://kwln1.local:8080 node scripts/seed-test.js --wipe
 ```
 
 Related: [[kowloon-seed-actor-gap]] for the deeper seed.js problem (Mongoose-direct writes bypassing the outbox pipeline).
+
+### Group `actorId` is `@username@domain`, not a URL
+
+`group.actorId` stores the Kowloon handle format (`@username@domain`), NOT an HTTP URL. To extract the owner's username for auth: `actorId.replace(/^@/, '').split('@')[0]`. Do NOT treat it as a URL or pass it to `fetch`.
+
+### Groups members API returns `{ members: [...] }`, not `orderedItems`
+
+`GET /groups/:id/members` returns `{ members: [...] }`. The response does NOT use `orderedItems` or `items`. When consuming this endpoint use a fallback chain: `res?.orderedItems || res?.items || res?.members || []`.
+
+### Mobile `useFeed` `viewKey` for groups
+
+The mobile `useFeed` hook accepts a `viewKey` mapped to the group/circle feed. Pass `viewKey: String(groupId)` where `groupId` is the full Kowloon ID (e.g. `group:abc123@kwln.social`). See `mobile/src/lib/useFeed.js`.

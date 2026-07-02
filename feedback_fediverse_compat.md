@@ -1,13 +1,16 @@
 ---
-name: Kowloon fediverse compatibility philosophy
+name: kowloon-fediverse-compatibility-philosophy
 description: How to weigh Kowloon-specific features vs. fediverse interop
-type: feedback
+metadata: 
+  node_type: memory
+  type: feedback
+  originSessionId: 1d84a4ed-0961-4966-80a8-5133c21f41ef
 ---
 
-Fediverse interop is a good goal but not a constraint. If other fediverse software were good enough, Kowloon wouldn't need to exist. Mastodon and others recreate monolithic social network architecture in federated form, with the same limitations and relationship models. Kowloon is deliberately different (hybrid push/pull federation, richer relationship model).
+Kowloon federates only with other Kowloon servers. There is no Mastodon, Pleroma, Misskey, or any other fediverse network interop planned for the foreseeable future. Do not raise cross-network compatibility as a consideration, ever.
 
-**Rule:** If something isn't compatible with Mastodon/Pleroma/etc. but is genuinely valuable for Kowloon, implement it and let others catch up. Do not water down features for compatibility.
+**Rule:** Never ask "will this work with Mastodon/other AP servers?" It is not a goal. Federation means Kowloon-to-Kowloon only.
 
-**Why:** The whole point of Kowloon is to explore better designs, not to be a Mastodon clone.
+**Why:** The user has corrected this repeatedly and explicitly. Kowloon is its own ecosystem. Other networks have fundamentally different relationship models that are incompatible with Kowloon's design.
 
-**How to apply:** When evaluating a feature, the question is "is this right for Kowloon?" not "will Mastodon support this?" Note ecosystem reality as context (e.g., nobody else does content signing yet) but don't use it as a reason to avoid the feature.
+**How to apply:** When designing federation features, assume both endpoints are Kowloon servers. Do not add fallback paths, compatibility shims, or even mention other AP software unless the user explicitly raises it.

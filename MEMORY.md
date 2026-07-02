@@ -5,12 +5,15 @@
 - [No follow notifications](feedback_no_follow_notifications.md) — Adding someone to a circle is private; the followed person is never notified. Foundational to Kowloon's ambiguous relationship model — don't build follower-count surfaces.
 - [No destructive sync flags](feedback_no_destructive_sync_flags.md) — Never use rsync --delete, git clean -fd, cp -rf, find -delete, or similar without explicit confirmation in-turn. Default to additive operations.
 - [Overflow hidden dropdowns](feedback_overflow_hidden_dropdowns.md) — Any absolute-positioned dropdown inside PostComposer must use createPortal — the modal container has overflow-hidden which clips child popups
-- [Pm2 env](feedback_pm2_env.md) — PM2 does not pick up .env changes on plain restart; must use --update-env flag
+- [Dev workflow](feedback_dev_workflow.md) — Local machine is dev-only; push to GitHub, Docker CI deploys. No PM2, no local restarts.
+- [Production servers](project_production_servers.md) — SSH as jzellis@kwln.social / jzellis@kowloon.network; docker-compose at ~/kowloon/; deploy = pull + up -d; seed password = Kowloon2026!
+- [Pm2 env](feedback_pm2_env.md) — PM2 does not pick up .env changes on plain restart; must use --update-env flag (local dev only; production uses Docker)
 - [Router link outside context](feedback_router_link_outside_context.md) — Never use react-router-dom <Link>/useNavigate in components mounted as siblings of <RouterProvider> (toasts, root portals). Navigate via the imported router instance instead.
 - [Sanitize wrapper](feedback_sanitize_wrapper.md) — Always import sanitizeHtml from #methods/utils/sanitize.js, never from 'sanitize-html' directly. Wrapper patches CVE-2026-44990 (xmp XSS); no upstream fix yet.
 - [Alpha status](project_alpha_status.md) — Current state of Kowloon as of 2026-04-19 and what remains before alpha
 - [Background worker todo](project_background_worker_todo.md) — Need a dedicated worker process for deferred jobs (actor cache refresh, federation retries, image work) before scaling
 - [Bookmarks personal only](project_bookmarks_personal_only.md) — Bookmarks do not fan out to feeds and do not federate. To broadcast a URL, users post a Link instead.
+- [Bookmarks folder model](project_bookmarks_folder_model.md) — Folder visibility inheritance (read-time), 5-level depth cap, cascade delete, lazy loading — settled 2026-06-16.
 - [Bugs 2026 05 05](project_bugs_2026_05_05.md) — Privacy/fan-out bug, reply count stale FeedItems, user search, circle UX, UI polish
 - [Circle ux](project_circle_ux.md) — Two-step circle creation modal, user lookup endpoint, homepage feed design
 - [Codebase gotchas](project_codebase_gotchas.md) — Non-obvious shape-of-the-code traps in Kowloon server — current invariants that are easy to break or miss
@@ -22,7 +25,7 @@
 - [Kowloon seed actor gap](project_kowloon_seed_actor_gap.md) — Rich-seed pipeline (seed.js + seed-extra.js + seed-sample-icons.js) and the actor/FeedItems gap that only affects seed.js. sample-media folder required at repo root.
 - [Local dev layout](project_local_dev_layout.md) — Local dev stack on this machine — host PM2 runs Kowloon server/worker/frontend; MongoDB and MinIO come from the dockerized federation compose stack.
 - [Mobile strategy](project_mobile_strategy.md) — Mobile is React Native, not a PWA. Don't suggest service workers / offline queues / manifest.json for the web frontend.
-- [Mobile app scaffold](project_mobile_app_scaffold.md) — Kowloon mobile app (Expo SDK 55 + Expo Router, ~/Projects/kowloon/mobile). Auth, typography system, feed, composer, rich rendering all working as of 2026-05-22.
+- [Mobile app scaffold](project_mobile_app_scaffold.md) — Kowloon mobile app (Expo SDK 55 + Expo Router, ~/Projects/kowloon/mobile). Pre-alpha complete as of 2026-06-15; remaining work is polish + bookmarks/search nav.
 - [Mobile share intake TODO](project_mobile_share_intake_todo.md) — Deferred: inbound share-into-Kowloon (Safari → Share → Kowloon → prefilled composer). Needs EAS dev client, on hold to keep the Expo Go workflow.
 - [Mobile groups moderation TODO](project_mobile_groups_moderation_todo.md) — Deferred: member kick / role promotion / block management need server activities + client wrappers; the right long-term home for join-request triage is a mobile notifications screen we haven't built yet.
 - [Multi federation remaining todo](project_multi_federation_remaining_todo.md) — Add (join_approved) wired 2026-05-18. Only the rare Join (join_request) cross-admin-server case remains.
@@ -30,12 +33,18 @@
 - [Reply federation lag possibly todo](project_reply_federation_lag_possibly_todo.md) — POSSIBLY TODO — in the on-demand reply model (added 2026-05-14), the author of a cross-server reply may briefly miss seeing their own reply because the read proxies to the parent's host before federation has landed. Wait for real-world testing to see if it shows up.
 - [Reply tombstone refanout todo](project_reply_tombstone_refanout_todo.md) — Historical note. Resolved by switching to the on-demand reply model (parent host is the single source of truth for a post's replies). Third-party servers no longer keep Reply state, so there is nothing to fan out tombstones to.
 - [Security hardening](project_security_hardening.md) — Security work completed in the session of 2026-04-29 covering XSS, CORS, rate limiting, file validation, SSRF, and storage
+- [Search architecture](project_search_architecture.md) — Search is local-only per-server for 0.1 (viewer-aware via per-type consent gate); third-party network indexer deferred post-0.1. Mobile search screen still TODO.
 - [Seo](project_seo.md) — How Kowloon handles SEO, OG tags, and social media previews
 - [Sidebar hero margin todo](project_sidebar_hero_margin_todo.md) — ServerInfo's hero image on the desktop sidebar has a visible left gap to the page edge that two attempts haven't resolved. Suspected Vite/Tailwind v4 stale cache.
 - [Signing](project_signing.md) — How Post, Circle, and Bookmark content is signed; utility location and UserSchema methods
+- [Storage streaming model](project_storage_streaming_model.md) — Files stream through the app at /files/:id from internal MinIO; no presigned URLs / S3_PUBLIC_URL. Restricted media via HMAC-signed URLs. Installer provisions internal MinIO. Supersedes the old federation storage gap.
 - [Undo react todo](project_undo_react_todo.md) — ActivityParser/handlers/Undo/index.js has a placeholder for Undo{React}; needs to actually remove the React record and recompute reactPreview/reactSummary
 - [User visibility model](project_user_visibility_model.md) — User.to is capped to @public or @<own-domain>; profile is always discoverable; personal-info fields are gated per viewer.
 - [Background](user_background.md) — Josh is a professional writer and journalist who prioritizes readability and editorial elegance in UI/UX
 - [Voice input](user_voice_input.md) — Josh sometimes uses iOS voice dictation from his iPad; messages may contain filler words and spoken-punctuation that should be ignored, not interpreted literally.
 - [Notification delivery options](project_notification_delivery_options.md) — Mobile uses foreground polling (60s) for now; WebSocket and push are deferred until we move off Expo Go. Don't re-litigate.
 - [Joplin integration](reference_joplin_integration.md) — Joplin Web Clipper API on localhost — token, folder ID, and key note IDs for Kowloon design docs
+- [Group image field](project_group_image_field.md) — Groups have `icon` (hex avatar) and `image` (3:1 hero banner, added 2026-07-02). Both are file URLs. Seed script at server/scripts/seed-group-images.js.
+- [Mobile routing singular](feedback_mobile_routing_singular.md) — Expo Router routes are singular: app/group/[id], app/circle/[id], etc. Plural paths throw "Unmatched Route" at runtime.
+- [Current focus](project_current_focus.md) — Working on the mobile app (~/Projects/kowloon/mobile) unless otherwise specified.
+- [Type filter solo](feedback_type_filter_solo.md) — Mobile TypeFilter: first tap solos a type, subsequent taps add more back. Don't revert to deselect-first behavior.

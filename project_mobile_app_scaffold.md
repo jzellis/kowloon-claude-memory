@@ -1,6 +1,6 @@
 ---
 name: project-mobile-app-scaffold
-description: "Kowloon mobile app at /home/jzellis/Projects/kowloon/mobile (repo github.com:jzellis/kowloon-mobile). Expo SDK 55 + Expo Router + NativeWind v4, plain JS. Multi-account. As of 2026-05-22: auth, typography system, home feed, composer, rich rendering all working end-to-end."
+description: "Kowloon mobile app at /home/jzellis/Projects/kowloon/mobile (repo github.com:jzellis/kowloon-mobile). Expo SDK 55 + Expo Router + NativeWind v4, plain JS. Multi-account. As of 2026-06-15: pre-alpha-complete — notifications, user profile, edit/delete own posts all shipped. Remaining work is polish + a bookmarks/search nav pass."
 metadata: 
   node_type: memory
   type: project
@@ -37,7 +37,9 @@ The mobile codebase is a fourth Kowloon repo sibling to server/frontend/client. 
 - Post detail (`app/post/[id].js`) — rich body, typography applied. Reactions/replies not yet built.
 - **Timeline filtering** (`3a04ac4`, server `d3f9ea0f`, client `4114662`): `FeedHeader` below the masthead — tappable view title opens a bottom sheet (Public / Server / Your circles) and a horizontal post-type filter row. Selection persists per account via `usePersistedFilter` (AsyncStorage). Server-side, `GET /posts?to=public|server` restricts visibility; circle posts via `GET /circles/:id/posts`. Saving the current view as a default to `user.prefs` is deferred (future).
 
-**Not yet built:** account switcher chrome; Profile/Circles/Groups screens (stubs only); notifications; reactions/replies; Media/Link/Event composer types; the moderation tray.
+**Shipped since (through 2026-06-15):** Profile (`app/user/[id]/index.js` — header + Posts/Circles/Bookmarks tabs); Circles + Groups (full CRUD, member management, join-request queue for group admins); Pages (read-only); Bookmarks (save with link-preview enrichment from the action bar); reactions + replies (thread view, edit/delete own, react to replies); all five post composer types; **notifications** (`app/notifications.js` — filter chips, tap-to-mark-read, jump-to-source, badge via `UnreadCountContext` polling every 60s); **edit + delete own posts** (`app/post/[id]/edit.js` + delete via destructive `Alert.alert` on detail screen).
+
+**Not yet built:** account switcher chrome; top-level bookmarks browsing route (a Bookmarks tab exists on the user profile); search UI (client lib supports `searchUsers`/`searchPosts`); empty-state illustrations; in-app invite/share-account flow; image cropping for icon uploads; the moderation tray.
 
 ### Known bugs / outstanding work
 
