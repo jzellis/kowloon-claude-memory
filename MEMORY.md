@@ -48,3 +48,4 @@
 - [Mobile routing singular](feedback_mobile_routing_singular.md) — Expo Router routes are singular: app/group/[id], app/circle/[id], etc. Plural paths throw "Unmatched Route" at runtime.
 - [Current focus](project_current_focus.md) — Working on the mobile app (~/Projects/kowloon/mobile) unless otherwise specified.
 - [Type filter solo](feedback_type_filter_solo.md) — Mobile TypeFilter: first tap solos a type, subsequent taps add more back. Don't revert to deselect-first behavior.
+- [Federation pull architecture](project_federation_pull_architecture.md) — Server-subscription firehose vs user-follow pull; FanOut dual-to-value model; serverOnlyPull; findAllCircleSubscribers; common regressions list.

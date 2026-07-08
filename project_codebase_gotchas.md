@@ -76,3 +76,33 @@ Related: [[kowloon-seed-actor-gap]] for the deeper seed.js problem (Mongoose-dir
 ### Mobile `useFeed` `viewKey` for groups
 
 The mobile `useFeed` hook accepts a `viewKey` mapped to the group/circle feed. Pass `viewKey: String(groupId)` where `groupId` is the full Kowloon ID (e.g. `group:abc123@kwln.social`). See `mobile/src/lib/useFeed.js`.
+
+### FeedFanOut `to` has three value types -- query MUST use `$in`
+
+`FeedFanOut.to` stores one of: `"@public"` (local public posts), `"@server"` (local server-only posts), or a specific user actorId like `"@alice@kwln.social"` (remote/circle-addressed posts). Two different code paths write these:
+- `enqueueFeedFanOut`: local posts get ONE row with `to: "@public"` or `to: "@server"` -- NOT one row per user.
+- `pullFromRemote`: remote content gets per-subscriber rows with `to: specificUserId`.
+
+The FanOut query in `getTimeline` MUST be `to: { $in: ["@public", "@server", viewerId] }`. Using `to: viewerId` alone silently drops ALL local public posts from every feed. See [[federation-pull-architecture]].
+
+### `pullFromRemote` must strip `_id`/`__v` before `$set` upsert
+
+Remote FeedItems arrive with `_id` from the remote MongoDB. Passing them directly to `$set: item` causes MongoDB to throw "Mod on _id not allowed" on all subsequent upserts (first may succeed, inserting the remote `_id`). The error is silently caught, the item never lands in `upsertedIds`, and no FanOut rows are created. Always destructure first:
+```js
+const { _id, __v, ...itemFields } = item;
+await FeedItems.findOneAndUpdate({ id: item.id }, { $set: itemFields }, { upsert: true });
+```
+
+### Bare server entries in circle.members must be excluded from the actorId `$in` filter
+
+Bare server entries like `"@kowloon.network"` are never stored as `actorId` on real posts. Compute `nonServerMembers` before building the actor filter:
+```js
+const nonServerMembers = allMembers.filter(
+  (id) => !(typeof id === "string" && id.startsWith("@") && !id.slice(1).includes("@"))
+);
+```
+Server-member posts are matched via a domain regex condition in `fanOutOrConditions` instead.
+
+### `Update.ALLOWED_FIELDS.Circle` must stay in sync with schema field names
+
+`ActivityParser/handlers/Update/index.js` has `ALLOWED_FIELDS.Circle` that gates patchable fields. Circle schema uses `summary` (not `description`) and has `icon`. If either is absent from the Set, those edits succeed client-side but `filterPatch` strips them and the patch object is empty -- silent data loss.
