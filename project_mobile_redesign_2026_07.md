@@ -17,10 +17,17 @@ changes. Decisions locked and folded into the token layer + design system:
 - **Server icon + name = drawer toggle** in the feed masthead — the hamburger is dropped; no caret (a bare tappable server badge, Slack/Discord-style). The LeftDrawer is demoted to "server context" now that the tab bar owns navigation.
 - **Feed view-selector icons** — the view selector shows the current context's icon: server icon with a client-side scrim + white **globe** (Public) / **lock** (Server, local-only) overlay; **hex avatar** per circle/group. Overlay is a client-side `ServerFeedIcon` (base → scrim `rgba(0,0,0,.22)` → glyph), NOT baked server images (federation renders remote server icons too).
 
+**Implemented (2026-07-13, pushed to main on both repos):**
+- Tokens (paper desaturation, `header`/`field`) — `d82a94e`.
+- Bottom tab bar + server-icon drawer toggle — `3a607fb`. Bar is a router-driven `BottomTabBar` (router.replace between siblings), NOT an Expo Router `<Tabs>` layout.
+- Klein header rollout on the 5 tab screens via `AppHeader`/`HeaderButton` + view-selector `ServerFeedIcon` overlay — `a2472a4`.
+- Profile cover image + links dropdown (mobile) — `62d3f9c`; server `Profile.featuredImage` field — server repo `b4595513` (deployed to prod; additive/optional, `profile.urls` already existed).
+- ALL UNVERIFIED ON DEVICE — no Expo on the dev box; changes were Babel-parse-checked only.
+
 **Pending / not done:**
-- **Hexagon compose FAB** — mocked as a point-up solid-primary hex, but the user is still deciding orientation (avatars are flat-top). NOT integrated.
-- **Auth hero** — replace the text wordmark with a commissioned splash image (title baked into the art); waiting on the artwork.
-- **Profile featured image + profile links** (link icon → dropdown of URLs) — both need new fields on the server `User` schema; mobile UI is designed but blocked on server work.
+- **Hexagon compose FAB** — user still deciding orientation (avatars are flat-top). NOT integrated.
+- **Auth hero** — waiting on commissioned artwork.
+- **Klein header on SECONDARY screens** — post detail, user/server profile, settings, compose, circle/group detail + forms still have the cream `BackLink` masthead. The `AppHeader` component exists; applying it is mechanical (root drops top safe-area edge → add `<AppHeader back title=... />`).
 
 **Scratch harness:** `mobile/design-preview/` — `archetypes.html` (7 archetypes, live palette switch, real tokens/fonts) + `render.mjs` (puppeteer → PNG/PDF in `out/`). Local scratch, uncommitted, its own `node_modules` (Chromium). Regenerate with `node render.mjs`. Iterating happens here, then locked bits move into the real app.
 
