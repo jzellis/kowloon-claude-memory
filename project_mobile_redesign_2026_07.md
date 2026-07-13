@@ -22,12 +22,13 @@ changes. Decisions locked and folded into the token layer + design system:
 - Bottom tab bar + server-icon drawer toggle — `3a607fb`. Bar is a router-driven `BottomTabBar` (router.replace between siblings), NOT an Expo Router `<Tabs>` layout.
 - Klein header rollout on the 5 tab screens via `AppHeader`/`HeaderButton` + view-selector `ServerFeedIcon` overlay — `a2472a4`.
 - Profile cover image + links dropdown (mobile) — `62d3f9c`; server `Profile.featuredImage` field — server repo `b4595513` (deployed to prod; additive/optional, `profile.urls` already existed).
+- Klein `AppHeader` on ALL secondary screens — `965545c` (14 BackLink screens: post/circle/group detail+edit+new, pending, browse-circles, servers, server profile, pages, user profile) + `33b21f0` (settings index/typography/profile). Only auth screens (welcome/login/register/verify-email/scan), compose (own composer bar), and index/root are intentionally left without `AppHeader`.
 - ALL UNVERIFIED ON DEVICE — no Expo on the dev box; changes were Babel-parse-checked only.
 
 **Pending / not done:**
 - **Hexagon compose FAB** — user still deciding orientation (avatars are flat-top). NOT integrated.
 - **Auth hero** — waiting on commissioned artwork.
-- **Klein header on SECONDARY screens** — post detail, user/server profile, settings, compose, circle/group detail + forms still have the cream `BackLink` masthead. The `AppHeader` component exists; applying it is mechanical (root drops top safe-area edge → add `<AppHeader back title=... />`).
+- Minor: a few tab screens (`circles/groups/search/notifications`) still carry an unused `BackLink` import — harmless, not cleaned.
 
 **Scratch harness:** `mobile/design-preview/` — `archetypes.html` (7 archetypes, live palette switch, real tokens/fonts) + `render.mjs` (puppeteer → PNG/PDF in `out/`). Local scratch, uncommitted, its own `node_modules` (Chromium). Regenerate with `node render.mjs`. Iterating happens here, then locked bits move into the real app.
 
