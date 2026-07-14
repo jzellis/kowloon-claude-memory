@@ -1,7 +1,10 @@
 ---
-name: Federation test suite — COMPLETE
+name: federation-test-suite-complete
 description: 3-server federation test suite for Kowloon; achieved 100% pass rate (59/59 tests) on 2026-04-27
-type: project
+metadata: 
+  node_type: memory
+  type: project
+  originSessionId: 4d2f856f-b4c5-4d20-95b6-66db38e9c3a9
 ---
 
 ## Status: COMPLETE as of 2026-04-27
@@ -99,3 +102,16 @@ Fan-out groups were picked from kwln2's open groups, but kwln1 users joined rand
 Group posts have `to: "audience"` in FeedItems — they require a FeedFanOut grant. Switched verification from `anonClient('kwln3').feeds.getPost` to `clientFor('kwln3', kwln3User.id)`.
 
 **How to apply:** When debugging federation issues, check these 9 areas in order: delivery (enqueueOutbox scope), fan-out (inbox post.js), signature bypass, membership tracking, FeedFanOut creation, visibility check, ID preservation, test setup, auth level.
+
+## Env gotcha: stale nginx = ECONNREFUSED between servers (2026-07-14)
+
+Container-to-container federation in the docker env routes via **network aliases on the nginx container** (`kwln1.local`/`kwln2.local`/`kwln3.local` all resolve to nginx). If the running nginx container is stale, it can be missing aliases: symptom is `kwln1.local` → 200 but `kwln2.local` resolves to `127.0.0.1` → **`fetch failed` / `ECONNREFUSED`** in `pullFromRemote`, with `getTimeline`/`pullFromRemote` otherwise logging correctly (e.g. `serverOnlyPull:true`). This looks like a code bug but isn't.
+
+Check + fix:
+```bash
+docker inspect kowloon-federation-nginx-1 --format '{{range .NetworkSettings.Networks}}{{.Aliases}}{{end}}'   # expect all 3
+docker compose -p kowloon-federation up -d --force-recreate nginx   # compose already defines all 3 aliases
+```
+Also note: the compose PROJECT NAME is `kowloon-federation` (pass `-p kowloon-federation`), the app containers volume-mount `./:/app` (so a container **restart** picks up working-tree code changes — no rebuild needed for JS), and `NODE_TLS_REJECT_UNAUTHORIZED=0` is set on app containers for the self-signed certs.
+
+The `federation-pull-architecture` changes (serverOnlyPull + findAllCircleSubscribers + dual-toFilter) were verified in this env and committed to server `main` as `d9aaf145` on 2026-07-14 (server-firehose multi-subscriber fan-out, per-author user-follow scoping, and local @public visibility all pass). See [[federation-pull-architecture]].
